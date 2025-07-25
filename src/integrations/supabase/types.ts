@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      medicine_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          medicine_details: Json | null
+          medicine_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          medicine_details?: Json | null
+          medicine_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          medicine_details?: Json | null
+          medicine_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      medicine_scans: {
+        Row: {
+          confidence_score: number | null
+          detected_medicine_name: string | null
+          extracted_text: string | null
+          generic_suggestions: Json | null
+          id: string
+          image_url: string | null
+          price_savings: number | null
+          scan_timestamp: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          detected_medicine_name?: string | null
+          extracted_text?: string | null
+          generic_suggestions?: Json | null
+          id?: string
+          image_url?: string | null
+          price_savings?: number | null
+          scan_timestamp?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          detected_medicine_name?: string | null
+          extracted_text?: string | null
+          generic_suggestions?: Json | null
+          id?: string
+          image_url?: string | null
+          price_savings?: number | null
+          scan_timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      medicine_searches: {
+        Row: {
+          generic_alternatives: Json | null
+          id: string
+          medicine_found: Json | null
+          search_query: string
+          search_timestamp: string
+          user_id: string
+        }
+        Insert: {
+          generic_alternatives?: Json | null
+          id?: string
+          medicine_found?: Json | null
+          search_query: string
+          search_timestamp?: string
+          user_id: string
+        }
+        Update: {
+          generic_alternatives?: Json | null
+          id?: string
+          medicine_found?: Json | null
+          search_query?: string
+          search_timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       Medicines: {
         Row: {
           id: number | null
@@ -47,6 +134,146 @@ export type Database = {
           short_composition1?: string | null
           short_composition2?: string | null
           type?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          allergies: string[] | null
+          avatar_url: string | null
+          created_at: string
+          date_of_birth: string | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          full_name: string | null
+          id: string
+          medical_conditions: string[] | null
+          notification_preferences: Json | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allergies?: string[] | null
+          avatar_url?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name?: string | null
+          id?: string
+          medical_conditions?: string[] | null
+          notification_preferences?: Json | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allergies?: string[] | null
+          avatar_url?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          full_name?: string | null
+          id?: string
+          medical_conditions?: string[] | null
+          notification_preferences?: Json | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reminder_logs: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          reminder_id: string
+          scheduled_time: string
+          status: string
+          taken_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reminder_id: string
+          scheduled_time: string
+          status?: string
+          taken_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reminder_id?: string
+          scheduled_time?: string
+          status?: string
+          taken_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminder_logs_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reminders: {
+        Row: {
+          created_at: string
+          dosage: string
+          end_date: string | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          medicine_name: string
+          notes: string | null
+          reminder_type: string | null
+          specific_times: string[] | null
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dosage: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          is_active?: boolean | null
+          medicine_name: string
+          notes?: string | null
+          reminder_type?: string | null
+          specific_times?: string[] | null
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          medicine_name?: string
+          notes?: string | null
+          reminder_type?: string | null
+          specific_times?: string[] | null
+          start_date?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
