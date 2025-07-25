@@ -1,1 +1,10 @@
 project_id = "bxjderygqhdpizkkumtq"
+
+[functions.medicine-ocr]
+verify_jwt = true
+
+[functions.medicine-search]
+verify_jwt = true
+
+[functions.reminder-notifications]
+verify_jwt = false
