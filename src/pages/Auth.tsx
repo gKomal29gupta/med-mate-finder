@@ -263,7 +263,7 @@ const Auth = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="w-full">
               <Button 
                 variant="outline" 
                 onClick={() => handleSocialLogin('google')}
@@ -272,15 +272,6 @@ const Auth = () => {
               >
                 <Chrome className="h-4 w-4 mr-2" />
                 Google
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => handleSocialLogin('github')}
-                disabled={isLoading}
-                className="w-full"
-              >
-                <Github className="h-4 w-4 mr-2" />
-                GitHub
               </Button>
             </div>
 
