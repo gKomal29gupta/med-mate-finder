@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,44 +9,133 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  DollarSign
+  DollarSign,
+  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ScanMedicine() {
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<any>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const { toast } = useToast();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const handleScan = async () => {
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'environment' // Use back camera on mobile
+        } 
+      });
+      setStream(mediaStream);
+      setShowCamera(true);
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      toast({
+        title: "Camera Error",
+        description: "Unable to access camera. Please check permissions.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setShowCamera(false);
+  };
+
+  const capturePhoto = async () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext('2d');
+    ctx?.drawImage(video, 0, 0);
+    
+    canvas.toBlob(async (blob) => {
+      if (blob) {
+        await processImage(blob);
+      }
+    }, 'image/jpeg', 0.8);
+    
+    stopCamera();
+  };
+
+  const processImage = async (file: Blob) => {
     setIsScanning(true);
     
-    // Simulate OCR processing
-    setTimeout(() => {
-      setIsScanning(false);
-      setScanResult({
-        medicine: "Paracetamol 500mg",
-        brand: "Crocin",
-        generic: "Acetaminophen",
-        brandPrice: "₹25.00",
-        genericPrice: "₹12.00",
-        savings: "₹13.00",
-        dosage: "500mg tablets",
-        manufacturer: "GSK",
-        description: "Pain reliever and fever reducer"
+    try {
+      // Upload image to Supabase storage
+      const fileName = `medicine-scan-${Date.now()}.jpg`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('medicine-scans')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('medicine-scans')
+        .getPublicUrl(fileName);
+
+      // Call OCR edge function
+      const { data, error } = await supabase.functions.invoke('medicine-ocr', {
+        body: { imageUrl: publicUrl }
       });
-      
+
+      if (error) throw error;
+
+      // Set scan results
+      setScanResult({
+        medicine: data.medicine_name,
+        brand: data.medicine_name,
+        generic: data.generic_suggestions[0]?.name || 'Generic Alternative',
+        brandPrice: `₹${(data.generic_suggestions[0]?.price + data.price_savings).toFixed(2)}`,
+        genericPrice: `₹${data.generic_suggestions[0]?.price.toFixed(2)}`,
+        savings: `₹${data.price_savings.toFixed(2)}`,
+        dosage: data.extracted_text,
+        manufacturer: data.generic_suggestions[0]?.manufacturer || 'Various',
+        description: "Generic medicine with same active ingredients",
+        confidence: data.confidence_score,
+        scanId: data.scan_id
+      });
+
       toast({
         title: "Scan Complete!",
-        description: "Medicine identified successfully. Check generic alternatives below.",
+        description: `Medicine identified with ${(data.confidence_score * 100).toFixed(1)}% confidence`,
       });
-    }, 3000);
+
+    } catch (error) {
+      console.error('Error processing image:', error);
+      toast({
+        title: "Scan Failed",
+        description: "Unable to process image. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      handleScan();
+      processImage(file);
     }
   };
 
@@ -58,6 +147,45 @@ export default function ScanMedicine() {
           Take a photo or upload an image of your medicine to find generic alternatives
         </p>
       </div>
+
+      {/* Camera View */}
+      {showCamera && (
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-primary" />
+                Camera View
+              </CardTitle>
+              <Button variant="ghost" size="sm" onClick={stopCamera}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full h-64 object-cover rounded-lg bg-muted"
+              />
+              <canvas ref={canvasRef} className="hidden" />
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                <Button 
+                  onClick={capturePhoto}
+                  disabled={isScanning}
+                  size="lg"
+                  className="bg-white/90 hover:bg-white text-foreground"
+                >
+                  <Camera className="w-5 h-5" />
+                  Capture
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Scan Interface */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -98,14 +226,14 @@ export default function ScanMedicine() {
             
             <div className="grid gap-2 md:grid-cols-2">
               <Button 
-                onClick={handleScan} 
-                disabled={isScanning}
+                onClick={startCamera} 
+                disabled={isScanning || showCamera}
                 variant="medical"
                 size="lg"
                 className="w-full"
               >
                 <Camera className="w-5 h-5" />
-                {isScanning ? "Scanning..." : "Take Photo"}
+                {showCamera ? "Camera Active" : "Take Photo"}
               </Button>
               
               <Button 
