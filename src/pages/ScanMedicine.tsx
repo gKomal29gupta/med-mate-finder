@@ -34,9 +34,18 @@ export default function ScanMedicine() {
       setStream(mediaStream);
       setShowCamera(true);
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
+      // Wait for the video element to be available and set the stream
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+          videoRef.current.play().catch(console.error);
+        }
+      }, 100);
+      
+      toast({
+        title: "Camera Ready",
+        description: "Camera access granted. You can now take a photo.",
+      });
     } catch (error) {
       console.error('Error accessing camera:', error);
       toast({
@@ -163,20 +172,36 @@ export default function ScanMedicine() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="relative">
+            <div className="relative bg-muted rounded-lg overflow-hidden">
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
-                className="w-full h-64 object-cover rounded-lg bg-muted"
+                muted
+                className="w-full h-64 object-cover"
+                onLoadedMetadata={() => {
+                  // Ensure video starts playing when metadata is loaded
+                  if (videoRef.current) {
+                    videoRef.current.play().catch(console.error);
+                  }
+                }}
               />
               <canvas ref={canvasRef} className="hidden" />
+              
+              {/* Camera overlay */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-4 border-2 border-white border-dashed rounded-lg opacity-50"></div>
+                <div className="absolute top-4 left-4 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                  Position medicine package within the frame
+                </div>
+              </div>
+              
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                 <Button 
                   onClick={capturePhoto}
                   disabled={isScanning}
                   size="lg"
-                  className="bg-white/90 hover:bg-white text-foreground"
+                  className="bg-white/90 hover:bg-white text-foreground shadow-lg"
                 >
                   <Camera className="w-5 h-5" />
                   Capture
