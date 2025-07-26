@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,20 +15,27 @@ import {
   Award,
   Calendar,
   Mail,
-  Phone
+  Phone,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Profile() {
+  const { user } = useAuth();
+  const { profile, loading, updateProfile, getDisplayName, getAge } = useUserProfile();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+91 9876543210",
-    age: "45",
-    emergencyContact: "+91 9876543211",
-    medicalConditions: ["Diabetes Type 2", "Hypertension"],
-    allergies: ["Penicillin", "Shellfish"]
+    name: "",
+    email: "",
+    phone: "",
+    dateOfBirth: "",
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    medicalConditions: [] as string[],
+    allergies: [] as string[]
   });
   
   const [notifications, setNotifications] = useState({
@@ -38,14 +45,51 @@ export default function Profile() {
     systemUpdates: true
   });
 
-  const { toast } = useToast();
+  // Update local state when profile data changes
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        name: profile.full_name || "",
+        email: profile.email || user?.email || "",
+        phone: profile.phone || "",
+        dateOfBirth: profile.date_of_birth || "",
+        emergencyContactName: profile.emergency_contact_name || "",
+        emergencyContactPhone: profile.emergency_contact_phone || "",
+        medicalConditions: profile.medical_conditions || [],
+        allergies: profile.allergies || []
+      });
+      
+      if (profile.notification_preferences) {
+        setNotifications({
+          medicationReminders: profile.notification_preferences.reminder ?? true,
+          priceAlerts: profile.notification_preferences.price_alerts ?? true,
+          healthTips: profile.notification_preferences.health_tips ?? false,
+          systemUpdates: profile.notification_preferences.system_updates ?? true
+        });
+      }
+    }
+  }, [profile, user]);
 
-  const handleSaveProfile = () => {
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been saved successfully.",
+  const handleSaveProfile = async () => {
+    const success = await updateProfile({
+      full_name: profileData.name,
+      phone: profileData.phone,
+      date_of_birth: profileData.dateOfBirth || null,
+      emergency_contact_name: profileData.emergencyContactName || null,
+      emergency_contact_phone: profileData.emergencyContactPhone || null,
+      medical_conditions: profileData.medicalConditions,
+      allergies: profileData.allergies,
+      notification_preferences: {
+        reminder: notifications.medicationReminders,
+        price_alerts: notifications.priceAlerts,
+        health_tips: notifications.healthTips,
+        system_updates: notifications.systemUpdates
+      }
     });
+    
+    if (success) {
+      setIsEditing(false);
+    }
   };
 
   const handleNotificationChange = (key: string, value: boolean) => {
@@ -58,6 +102,14 @@ export default function Profile() {
     remindersSet: 12,
     adherenceRate: 87
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -103,11 +155,12 @@ export default function Profile() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="age">Age</Label>
+                  <Label htmlFor="dateOfBirth">Date of Birth</Label>
                   <Input
-                    id="age"
-                    value={profileData.age}
-                    onChange={(e) => setProfileData({...profileData, age: e.target.value})}
+                    id="dateOfBirth"
+                    type="date"
+                    value={profileData.dateOfBirth}
+                    onChange={(e) => setProfileData({...profileData, dateOfBirth: e.target.value})}
                     disabled={!isEditing}
                   />
                 </div>
@@ -130,12 +183,21 @@ export default function Profile() {
                     disabled={!isEditing}
                   />
                 </div>
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="emergency">Emergency Contact</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
                   <Input
-                    id="emergency"
-                    value={profileData.emergencyContact}
-                    onChange={(e) => setProfileData({...profileData, emergencyContact: e.target.value})}
+                    id="emergencyContactName"
+                    value={profileData.emergencyContactName}
+                    onChange={(e) => setProfileData({...profileData, emergencyContactName: e.target.value})}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="emergencyContactPhone">Emergency Contact Phone</Label>
+                  <Input
+                    id="emergencyContactPhone"
+                    value={profileData.emergencyContactPhone}
+                    onChange={(e) => setProfileData({...profileData, emergencyContactPhone: e.target.value})}
                     disabled={!isEditing}
                   />
                 </div>
@@ -264,12 +326,14 @@ export default function Profile() {
               <div className="w-20 h-20 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                 <User className="w-10 h-10 text-white" />
               </div>
-              <h3 className="font-bold text-lg">{profileData.name}</h3>
+              <h3 className="font-bold text-lg">{getDisplayName()}</h3>
               <p className="text-sm text-muted-foreground">{profileData.email}</p>
-              <Badge variant="outline" className="mt-2">
-                <Calendar className="w-3 h-3 mr-1" />
-                Age {profileData.age}
-              </Badge>
+              {getAge() && (
+                <Badge variant="outline" className="mt-2">
+                  <Calendar className="w-3 h-3 mr-1" />
+                  Age {getAge()}
+                </Badge>
+              )}
             </CardContent>
           </Card>
 

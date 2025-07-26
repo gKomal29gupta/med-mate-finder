@@ -13,6 +13,7 @@ import {
   Bell
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 const recentActivity = [
   {
@@ -62,13 +63,15 @@ const upcomingReminders = [
 ];
 
 export default function Dashboard() {
+  const { getDisplayName } = useUserProfile();
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, John!
+            Welcome back, {getDisplayName()}!
           </h1>
           <p className="text-muted-foreground">
             Track your medicines and save money with generic alternatives
