@@ -28,7 +28,7 @@ const Auth = () => {
     checkUser();
   }, [navigate]);
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -61,7 +61,7 @@ const Auth = () => {
     }
   };
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -88,7 +88,7 @@ const Auth = () => {
     }
   };
 
-  const handleSocialLogin = async (provider: 'google' | 'github') => {
+  const handleSocialLogin = async (provider) => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
