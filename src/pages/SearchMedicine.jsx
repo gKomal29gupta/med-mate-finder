@@ -52,10 +52,10 @@ const searchResults = [
 
 export default function SearchMedicine() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState<typeof searchResults>([]);
+  const [results, setResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  const handleSearch = async (term: string) => {
+  const handleSearch = async (term) => {
     if (!term.trim()) return;
     
     setIsSearching(true);
@@ -68,7 +68,7 @@ export default function SearchMedicine() {
     }, 1000);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = (suggestion) => {
     setSearchTerm(suggestion);
     handleSearch(suggestion);
   };

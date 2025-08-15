@@ -68,14 +68,14 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const isCollapsed = state === "collapsed";
 
-  const isActive = (path: string) => {
+  const isActive = (path) => {
     if (path === "/") {
       return currentPath === "/";
     }
     return currentPath.startsWith(path);
   };
 
-  const getNavClasses = (path: string) => {
+  const getNavClasses = (path) => {
     const baseClasses = "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200";
     if (isActive(path)) {
       return `${baseClasses} bg-primary text-primary-foreground shadow-md`;
