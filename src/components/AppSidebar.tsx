@@ -94,7 +94,7 @@ export function AppSidebar() {
             {!isCollapsed && (
               <div className="flex flex-col">
                 <span className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  MedMate
+                  MedGenius
                 </span>
                 <span className="text-xs text-muted-foreground">Medicine Finder</span>
               </div>
