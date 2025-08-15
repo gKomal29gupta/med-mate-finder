@@ -88,8 +88,8 @@ export function AppSidebar() {
       <SidebarContent className="flex flex-col h-full">
         <div className="p-4 border-b">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-              <Pill className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              <img src="/lovable-uploads/058ea4a4-d6ff-437f-a073-69042a5d15cc.png" alt="MedGenius Logo" className="w-8 h-8 object-contain" />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">
