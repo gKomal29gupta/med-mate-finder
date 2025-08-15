@@ -17,12 +17,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function ScanMedicine() {
   const [isScanning, setIsScanning] = useState(false);
-  const [scanResult, setScanResult] = useState(null);
+  const [scanResult, setScanResult] = useState<any>(null);
   const [showCamera, setShowCamera] = useState(false);
-  const [stream, setStream] = useState(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const { toast } = useToast();
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const startCamera = async () => {
     try {
@@ -85,7 +85,7 @@ export default function ScanMedicine() {
     stopCamera();
   };
 
-  const processImage = async (file) => {
+  const processImage = async (file: Blob) => {
     setIsScanning(true);
     
     try {
@@ -141,8 +141,8 @@ export default function ScanMedicine() {
     }
   };
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files && event.target.files[0];
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       processImage(file);
     }

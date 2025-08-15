@@ -34,8 +34,8 @@ export default function Profile() {
     dateOfBirth: "",
     emergencyContactName: "",
     emergencyContactPhone: "",
-    medicalConditions: [],
-    allergies: []
+    medicalConditions: [] as string[],
+    allergies: [] as string[]
   });
   
   const [notifications, setNotifications] = useState({
@@ -92,7 +92,7 @@ export default function Profile() {
     }
   };
 
-  const handleNotificationChange = (key, value) => {
+  const handleNotificationChange = (key: string, value: boolean) => {
     setNotifications({ ...notifications, [key]: value });
   };
 

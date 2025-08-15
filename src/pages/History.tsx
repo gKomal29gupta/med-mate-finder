@@ -80,9 +80,9 @@ export default function History() {
 
   const totalSavings = history
     .filter(item => item.savings)
-    .reduce((total, item) => total + parseFloat(item.savings.replace('₹', '')), 0);
+    .reduce((total, item) => total + parseFloat(item.savings!.replace('₹', '')), 0);
 
-  const getTypeIcon = (type) => {
+  const getTypeIcon = (type: string) => {
     switch (type) {
       case "scan": return <Scan className="w-4 h-4" />;
       case "search": return <Search className="w-4 h-4" />;
@@ -91,7 +91,7 @@ export default function History() {
     }
   };
 
-  const getTypeColor = (type) => {
+  const getTypeColor = (type: string) => {
     switch (type) {
       case "scan": return "bg-primary/20 text-primary";
       case "search": return "bg-secondary/20 text-secondary";
@@ -100,7 +100,7 @@ export default function History() {
     }
   };
 
-  const getTypeBadge = (type) => {
+  const getTypeBadge = (type: string) => {
     switch (type) {
       case "scan": return "Scanned";
       case "search": return "Searched";

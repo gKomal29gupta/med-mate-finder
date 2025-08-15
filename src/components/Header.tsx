@@ -23,7 +23,7 @@ export function Header() {
           <SidebarTrigger className="md:hidden" />
           <div className="hidden md:block">
             <h1 className="text-lg font-semibold text-foreground">
-              MedGenius
+              Medicine Finder
             </h1>
           </div>
         </div>

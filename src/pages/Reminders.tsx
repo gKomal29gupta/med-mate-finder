@@ -92,7 +92,7 @@ export default function Reminders() {
     });
   };
 
-  const toggleReminder = (id) => {
+  const toggleReminder = (id: number) => {
     setReminders(reminders.map(reminder => 
       reminder.id === id 
         ? { ...reminder, isActive: !reminder.isActive }
@@ -100,7 +100,7 @@ export default function Reminders() {
     ));
   };
 
-  const deleteReminder = (id) => {
+  const deleteReminder = (id: number) => {
     setReminders(reminders.filter(reminder => reminder.id !== id));
     toast({
       title: "Reminder Deleted",
@@ -108,13 +108,13 @@ export default function Reminders() {
     });
   };
 
-  const getAdherenceColor = (adherence) => {
+  const getAdherenceColor = (adherence: number) => {
     if (adherence >= 90) return "text-success";
     if (adherence >= 70) return "text-warning";
     return "text-destructive";
   };
 
-  const getAdherenceLabel = (adherence) => {
+  const getAdherenceLabel = (adherence: number) => {
     if (adherence >= 90) return "Excellent";
     if (adherence >= 70) return "Good";
     return "Needs Improvement";

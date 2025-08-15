@@ -1,6 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LucideIcon } from "lucide-react";
 
-export function StatCard({ title, value, description, icon: Icon, trend }) {
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  description?: string;
+  icon: LucideIcon;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
+}
+
+export function StatCard({ title, value, description, icon: Icon, trend }: StatCardProps) {
   return (
     <Card className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-card to-card/50">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

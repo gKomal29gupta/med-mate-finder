@@ -28,7 +28,7 @@ const Auth = () => {
     checkUser();
   }, [navigate]);
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -61,7 +61,7 @@ const Auth = () => {
     }
   };
 
-  const handleSignIn = async (e) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
@@ -88,7 +88,7 @@ const Auth = () => {
     }
   };
 
-  const handleSocialLogin = async (provider) => {
+  const handleSocialLogin = async (provider: 'google' | 'github') => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -142,8 +142,8 @@ const Auth = () => {
               <Pill className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">MedGenius</h1>
-              <p className="text-sm text-muted-foreground">Your Smart Healthcare Companion</p>
+              <h1 className="text-2xl font-bold text-foreground">MedGuide</h1>
+              <p className="text-sm text-muted-foreground">Your Medicine Companion</p>
             </div>
           </div>
         </div>
