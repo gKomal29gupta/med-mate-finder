@@ -3,25 +3,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface UserProfile {
-  id: string;
-  user_id: string;
-  full_name: string | null;
-  email: string | null;
-  phone: string | null;
-  date_of_birth: string | null;
-  medical_conditions: string[] | null;
-  allergies: string[] | null;
-  emergency_contact_name: string | null;
-  emergency_contact_phone: string | null;
-  notification_preferences: any;
-  avatar_url: string | null;
-}
-
 export const useUserProfile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async () => {
@@ -54,7 +39,7 @@ export const useUserProfile = () => {
     }
   };
 
-  const updateProfile = async (updates: Partial<UserProfile>) => {
+  const updateProfile = async (updates) => {
     if (!user || !profile) return;
 
     try {
